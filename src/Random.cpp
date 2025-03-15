@@ -1,4 +1,6 @@
-#include <Random.h>
+#include "Random.h"
+
+#include <iostream>
 
 int Random::generateInt(int min, int max) {
 
