@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
     src/Xadrex_2.cpp
+    src/Sound.cpp
 )
 
 add_executable(${PROJECT_NAME})

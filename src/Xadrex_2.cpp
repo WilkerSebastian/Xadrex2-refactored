@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <stdlib.h>
 #include <time.h>
+#include "Sound.h"
 
 using namespace std;
 
@@ -15,9 +16,7 @@ char ax,ay,sx,sy,joestar;
 int vez=2, real, feique,rbot;
 bool xadrezNormal=1,rock, bot=0;
 
-void assassinato();
 void resetar();
-void requi();
 bool selecionado(int x, int y);
 bool movimento(int ix, int iy, int mx, int my);
 
@@ -36,12 +35,6 @@ int main(){
 	positivo = fopen("historico.txt","a");
 	void menu();
 	void biomecanico();
-	
-	
-	void the_final_countdown();
-	void desistencia();
-	void empateNegado();
-	void empate();
 	
 	comeco:
 	system("cls || clear");	
@@ -66,7 +59,7 @@ int main(){
 	for(i=0; i<16; i++)
 	printf("%c-",captB[i]);			
    cout<<"\n\n   0 1 2 3 4 5 6 7\n\n";
-//impressão do tabuleiro
+//impressï¿½o do tabuleiro
 	for(i=0;i<8;i++){
 		cout<<i<<"  ";
 	for(j=0;j<8;j++)
@@ -74,7 +67,7 @@ int main(){
 	printf("\n");					
 	}
 	printf("\n");
-	//Peças capturadas pelos brancos
+	//Peï¿½as capturadas pelos brancos
 	for(i=0; i<16; i++)
 		cout<<captP[i]<<"-";
 		
@@ -83,7 +76,7 @@ int main(){
 		biomecanico();
 	}
 	else{
-	//Escolher ação
+	//Escolher aï¿½ï¿½o
 	cout<<"\n\n1)Movimentar\n8)Sair\n9)Desistir\n10)Empate\n";
 	scanf("%i,%i",& real,& feique);
 	if((int)real==8){
@@ -94,7 +87,7 @@ int main(){
 		scanf("%i",&feique);
 		if(feique == 1){
 			printf("N%co aguentou a press%co\n\n",an,an);
-			desistencia();
+			Sound::GetInstance()->desistencia();
 			if(vez % 2 == 0){
 				fprintf(positivo,"-1 %s x %s 1\n",nome1,nome2);
 				fclose(positivo);
@@ -117,7 +110,7 @@ int main(){
 	cin>>feique;
 	if(feique == 1){
 		printf("Ent%co %c isso\n",an,eh);
-		empate();
+		Sound::GetInstance()->empate();
 		fprintf(positivo,"0 %s x %s 0\n",nome1,nome2);
 		fclose(positivo);
 		resetar();
@@ -125,12 +118,12 @@ int main(){
 		goto comeco;
 	} else{
 		printf("Esta partida est%c longe de acabar\n",ah);
-		empateNegado();
+		Sound::GetInstance()->empateNegado();
 		system("pause");
 		goto inicio;
 	}	
 	} else {
-	// Inserir e verificar peça selecionada
+	// Inserir e verificar peï¿½a selecionada
 	cout<<"\nMovimento:\n\nDe:";
 	scanf("%i,%i",& ax,& ay);
 	if(selecionado((int)ax,(int)ay)){
@@ -160,7 +153,7 @@ int main(){
 					captB[cv] = tabuleiro[sx][sy];
 					cv++;
 				}
-			assassinato();
+			Sound::GetInstance()->assassinato(vez);
 			}
 		tabuleiro[sx][sy]=tabuleiro[ax][ay];
 		tabuleiro[ax][ay]='-';
@@ -194,7 +187,7 @@ for(i=0;i<8;i++){
 	printf("%c ",tabuleiro[i][j]);
 	printf("\n");					
 	}
-	the_final_countdown();
+	Sound::GetInstance()->the_final_countdown();
 //Quem ganhou?
 	cout<<"\n\nCheque-Mate\n\n";
 	if((vez-1)%2==0){
@@ -396,13 +389,13 @@ bool movimento(int ix, int iy, int mx, int my){
     	return 0;
 	}
     }
-// Movimento do peão s
+// Movimento do peï¿½o s
 	int requiem;
 	if(tabuleiro[ix][iy]=='s'){
 		if (((my==iy && mx==ix+1) && tabuleiro[mx][my]=='-') || (mx==ix+1 && (my==iy-1 || my==iy+1 ) && tabuleiro[mx][my]!='-' ) || (my==iy && ix==1 && mx==ix+2 && tabuleiro[ix+1][iy]=='-' && tabuleiro[mx][my]=='-')) {
 	    if (mx==7){
 	    	printf("\nPe%co Requiem\n\n",an);
-			requi(); 
+			Sound::GetInstance()->requi(); 
 			printf("Pra qual pe%ca o seu pe%co vai mega-evoluir?\n\n",ced,an);
 	    	printf("1)Liteira\n2)Elefante\n3)Xam%c\n4)Queen\n",an);
 	    	if(!xadrezNormal)
@@ -435,13 +428,13 @@ bool movimento(int ix, int iy, int mx, int my){
 		return 0;
 	}
 	}
-// Movimento do peão p
+// Movimento do peï¿½o p
 if(tabuleiro[ix][iy]=='p'){
 	if (((my==iy && mx==ix-1) && tabuleiro[mx][my]=='-') || (mx==ix-1 && (my==iy-1 || my==iy+1 ) && tabuleiro[mx][my]!='-' ) || (my==iy && ix==6 && mx==ix-2 && tabuleiro[ix-1][iy]=='-' && tabuleiro[mx][my]=='-')) {
 	    if (mx==0){
 	    	if(!bot){
 	    	printf("\nPe%co Requiem\n\n",an);
-			requi(); 
+			Sound::GetInstance()->requi(); 
 			printf("Pra qual pe%ca o seu pe%co vai mega-evoluir?\n\n",ced,an);
 	    	printf("1)Torre\n2)Cavalo\n3)Bispo\n4)Rainha\n");
 	    	if(!xadrezNormal)
@@ -810,7 +803,7 @@ if(boina){
 					captB[cv] = tabuleiro[afx][afy];
 					cv++;
 				}
-			assassinato();
+				Sound::GetInstance()->assassinato(vez); 
 			}
 		tabuleiro[afx][afy]=tabuleiro[uix][uiy];
 		tabuleiro[uix][uiy]='-';
@@ -818,144 +811,4 @@ if(boina){
 		}
 }
 
-}
-void the_final_countdown(){
-	
-	Beep(554,110);
-	Beep(493,120);
-	Beep(554,500);
-	Beep(369,400); 
-	
-	Sleep(800);
-	
-	Beep(587,100);
-	Beep(554,100);
-	Beep(587,200);
-	Beep(554,200); 
-	Beep(493,500);
-	
-	Sleep(900);
-	
-	Beep(587,100);
-	Beep(554,100);
-	Beep(587,500);
-	Beep(369,500);
-	
-	Sleep(700);
-	
-	Beep(493,100);
-	Beep(440,100);
-	Beep(493,200);
-	Beep(440,200);
-	Beep(415,200);
-	Beep(493,200);
-	Beep(440,700);
-	
-}
-void desistencia(){
-
-    int c3=261,c_sus3=277,d3=293,d_sus3=311,e3=329,f3=349,f_sus3=369,g3=392,g_sus3=415,a3=440,a_sus3=466,b3=494,c4=523,c_sus4=554,d4=587;
-
-    Beep(c_sus4 , 300);
-    Beep(g_sus3 , 300);
-    Beep(c_sus4 , 300);
-
-    Beep(c_sus4 , 300);
-    Beep(g_sus3 , 300);
-    Beep(c_sus4 , 300);
-    Beep(g_sus3 , 300);
-
-
-    Beep(a_sus3 , 300);
-    Beep(f_sus3 , 300);
-    Beep(c_sus3 , 300);
-
-}
-void empateNegado(){
-	int F5 = 1396, G5 = 1567, Ab5 = 1661, C6 = 2093, Cb5 = 1975, Bb5 = 1864, C5 = 1046, Fb5 = 1318, Eb5 = 1244;
-	
-	Beep(F5,300);
-	Beep(G5,300);
-	Beep(Ab5,280);
-	Beep(C6,280);
-	Beep(Ab5,200);
-	Beep(Cb5,280);
-	Beep(Bb5,280);
-	Beep(Ab5,500);
-	
-	Sleep(200);
-	
-	Beep(C5,300);
-	Beep(Eb5,200);
-	Beep(Fb5,200);
-	Beep(F5,1000);
-	
-}
-void empate(){
-		int F5 = 1396, G5 = 1567, Ab5 = 1661, C6 = 2093, Cb5 = 1975, Bb5 = 1864, C5 = 1046, Fb5 = 1318, Eb5 = 1244, Db6 = 2217, A5 = 1760, F = 1479, E5 = 1318 ;
-
-Beep(Db6,1000);
-Beep(Db6,100);
-Beep(Db6,100);
-Beep(Db6,210);
-Beep(C6,130);
-Beep(Bb5,130);
-Beep(Db6,180);
-Beep(C6,130);
-Beep(Bb5,130);
-Beep(A5,1050);
-Beep(A5,130);
-Beep(A5,130);
-Beep(A5,210);
-Beep(Ab5,100);
-
-Beep(F,100);
-Beep(A5,210);
-Beep(Ab5,100);
-Beep(F,100);
-Sleep(200);
-Beep(F5,1000);
-Beep(E5,1000);
-Beep(Eb5,1000);
-	
-}
-void assassinato(){
-	if(vez%2 == 0){
-	Beep(1300,200);
-	Beep(900,200);
-	} else {
-	Beep(900,200);
-	Beep(1300,200);
-	}
-}
-void requi(){
-	int Fs4 = 739, D4 = 587, E4 = 659, F4 = 698, Cs4 = 554, B4 = 987, Cs5 = 1108, D5 = 1174, G5 = 1567, As4 = 932, G4 = 783;
-	
-	Beep(Fs4,240);
-	Beep(D4,400);
-	
-	Sleep(400);
-	
-	Beep(D4,180);
-	Beep(E4,180);
-	Beep(F4,350);
-	Beep(E4,350);
-	Beep(D4,300);
-	
-	Beep(Cs4,350);
-	Beep(D4,350);
-	Beep(E4,300);
-	Beep(Fs4,550);
-	Beep(Fs4,250);
-	Beep(B4,800);
-	Beep(B4,290);
-	
-	Beep(Cs5,290);
-	Beep(D5,350);
-	Beep(G4,350);
-	Beep(Fs4,200);
-	Beep(F4,350);
-	Beep(D5,350);
-	Beep(As4,180);
-	Beep(1000,800);
 }
