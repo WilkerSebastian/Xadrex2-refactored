@@ -2,12 +2,12 @@
 #include <Windows.h>
 #include <stdlib.h>
 #include <time.h>
+#include <locale>
 #include "Sound.h"
 
 using namespace std;
 
 int i=0,j,pz=0,cv=0,reipreto=0,reibranco=0;
-char ah=160,ced=135,oh=162,an=198,eh=130;
 char nome1[100]="Branco", nome2[100] = "Preto"; 
 const char nomeBot[100] = "UltraT";
 char captB[16] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '}; 
@@ -29,7 +29,10 @@ char tabuleiro[8][8]= {  {'L','E','X','K','Q','X','E','L'},
 						 {'p','p','p','p','p','p','p','p'},
 						 {'T','C','B','R','D','B','C','T'}};
 
-int main(){
+int main() {
+
+	std::locale::global(std::locale("pt_BR.UTF-8"));
+
 	system("MODE con:cols=34 lines=30");
 	FILE *positivo;
 	positivo = fopen("historico.txt","a");
@@ -83,10 +86,10 @@ int main(){
 	goto comeco;
 	// Desistir:
 	} else if(real==9){
-		printf("Tem certeza?\n\n1) Sim\n2) N%co\n",an);
+		printf("Tem certeza?\n\n1) Sim\n2) Não\n");
 		scanf("%i",&feique);
 		if(feique == 1){
-			printf("N%co aguentou a press%co\n\n",an,an);
+			printf("Não aguentou a pressão\n\n");
 			Sound::GetInstance()->desistencia();
 			if(vez % 2 == 0){
 				fprintf(positivo,"-1 %s x %s 1\n",nome1,nome2);
@@ -109,7 +112,7 @@ int main(){
 	cout<<"Os dois concordam com isso?\n\n1)Sim\n2)Sin\'t\n";
 	cin>>feique;
 	if(feique == 1){
-		printf("Ent%co %c isso\n",an,eh);
+		printf("Então é isso\n");
 		Sound::GetInstance()->empate();
 		fprintf(positivo,"0 %s x %s 0\n",nome1,nome2);
 		fclose(positivo);
@@ -117,7 +120,7 @@ int main(){
 		system("pause");
 		goto comeco;
 	} else{
-		printf("Esta partida est%c longe de acabar\n",ah);
+		printf("Esta partida está longe de acabar\n");
 		Sound::GetInstance()->empateNegado();
 		system("pause");
 		goto inicio;
@@ -127,20 +130,20 @@ int main(){
 	cout<<"\nMovimento:\n\nDe:";
 	scanf("%i,%i",& ax,& ay);
 	if(selecionado((int)ax,(int)ay)){
-		printf("N%co h%c uma pe%ca sua nessa posi%c%co\n\n",an,ah,ced,ced,an);
+		printf("Não há uma peça sua nessa posição\n\n");
 		system("pause");
 		system("cls || clear");
 		goto inicio;
 	}
 	//Inserir e verificar movimento
-	printf("\n%c ir%c para: ",tabuleiro[ax][ay],ah);
+	printf("\n%c irá para: ",tabuleiro[ax][ay]);
 	scanf("%i,%i",& sx,& sy);
 	if(movimento(ax, ay, sx, sy)){
 		if(rock){
 			joestar = tabuleiro[ax][ay];
 			tabuleiro[ax][ay] = tabuleiro[sx][sy];
 			tabuleiro[sx][sy] = joestar;
-			printf("\nOs do rock eu sei quem s%co",an);
+			printf("\nOs do rock eu sei quem são");
 			rock=0;
 			fflush(stdin);
 			getchar();
@@ -160,7 +163,7 @@ int main(){
 		 
 		}
 	} else {
-		printf("\nMovimento inv%clido\n\n",ah);
+		printf("\nMovimento inválido\n\n");
 		system("pause");
 		system("cls || clear");
 		goto inicio;
@@ -221,7 +224,7 @@ void menu(){
 	printf("      5) Resetar o tabuleiro\n");
 	printf("          6) Salvar jogo\n");
 	printf("         7) Carregar save\n");
-	printf("     8) Hist%crico de partidas\n",oh);
+	printf("     8) Histórico de partidas\n");
 	printf("           9) Sair-lhes\n");
 	if(bot){
 	printf("         0) Desligar bote\n");	
@@ -232,7 +235,7 @@ void menu(){
 	cin>>t;
 	if(t==2){
 		system("clear || cls");
-		printf("Insira os nomes (sem espa%cos):\nBranco: ",ced);
+		printf("Insira os nomes (sem espaços):\nBranco: ");
 	
 	cin>>nome1;
 	cout<<"Preto: ";
@@ -243,13 +246,13 @@ void menu(){
 	system("clear || cls");
 	if(xadrezNormal){
 	printf("1. Jogue quando for o seu turno\n\n2. Insira as cordenadas como: linha, virgula, coluna\n\n");
-	printf("3. Insira primeiro as cordenadas de onde est%c a pe%ca que vc quer mover\n\n",ah,ced);
-	printf("4. Depois insira a cordenada da casa pra qual vc quer que a pe%ca se desloque\n\n",ced);
-	printf("5. Se o movimento for v%clido, o movimento acontecer%c\n\n",ah,ah);
+	printf("3. Insira primeiro as cordenadas de onde está a peça que vc quer mover\n\n");
+	printf("4. Depois insira a cordenada da casa pra qual vc quer que a peça se desloque\n\n");
+	printf("5. Se o movimento for válido, o movimento acontecerá\n\n");
 	printf("6. Digite apenas numeros!\n\n");
 	printf("7. Espere o \"bot\" pensar!\n\n");
 	printf("8. Tente entender o jogo\n\n");
-	printf("9. Se tu n%co seguir as regras e algo der errado, o problema n%co %c meu\n\n",an,an,eh);
+	printf("9. Se tu não seguir as regras e algo der errado, o problema não é meu\n\n");
 	} else{
 		cout<<"O cara acha que vai entender o Xadrez 2\n\n";
 	}
@@ -304,7 +307,7 @@ void menu(){
 	ryu = fopen("partida.txt", "r");
 	car = fopen("tabuleiro.txt", "r");
 	if(car == NULL || ryu == NULL || cavalo == NULL){
-		printf("\nN%co tem nenhum tabuleiro salvo aqui\n",an);
+		printf("\nNão tem nenhum tabuleiro salvo aqui\n");
 		system("pause");
 	} else {
 	for(i=0;i<8;i++)
@@ -327,7 +330,7 @@ void menu(){
 	mega = fopen("historico.txt", "r");
 	
 	if(mega == NULL){
-		printf("N%co h%c partidas registradas\n",an,ah);
+		printf("Não há partidas registradas\n");
 	} else {
 		while(fgets(hit, 1000, mega) != NULL){
 			printf("%s\n", hit);
@@ -394,10 +397,10 @@ bool movimento(int ix, int iy, int mx, int my){
 	if(tabuleiro[ix][iy]=='s'){
 		if (((my==iy && mx==ix+1) && tabuleiro[mx][my]=='-') || (mx==ix+1 && (my==iy-1 || my==iy+1 ) && tabuleiro[mx][my]!='-' ) || (my==iy && ix==1 && mx==ix+2 && tabuleiro[ix+1][iy]=='-' && tabuleiro[mx][my]=='-')) {
 	    if (mx==7){
-	    	printf("\nPe%co Requiem\n\n",an);
+	    	printf("\nPeão Requiem\n\n");
 			Sound::GetInstance()->requi(); 
-			printf("Pra qual pe%ca o seu pe%co vai mega-evoluir?\n\n",ced,an);
-	    	printf("1)Liteira\n2)Elefante\n3)Xam%c\n4)Queen\n",an);
+			printf("Pra qual peça o seu peão vai mega-evoluir?\n\n");
+	    	printf("1)Liteira\n2)Elefante\n3)Xamã\n4)Queen\n");
 	    	if(!xadrezNormal)
 	    	cout<<"5)King Crimson\n";
 	    	cin>>requiem;
@@ -418,7 +421,7 @@ bool movimento(int ix, int iy, int mx, int my){
 					tabuleiro[ix][iy]='K';
 					break;
 				default:
-					printf("\nAo ser abandonado pelo seu King, o pe%co decide mudar de lado\n",an);
+					printf("\nAo ser abandonado pelo seu King, o peão decide mudar de lado\n");
 				 	tabuleiro[ix][iy]='p';	
 			}
 			system("pause");
@@ -433,9 +436,9 @@ if(tabuleiro[ix][iy]=='p'){
 	if (((my==iy && mx==ix-1) && tabuleiro[mx][my]=='-') || (mx==ix-1 && (my==iy-1 || my==iy+1 ) && tabuleiro[mx][my]!='-' ) || (my==iy && ix==6 && mx==ix-2 && tabuleiro[ix-1][iy]=='-' && tabuleiro[mx][my]=='-')) {
 	    if (mx==0){
 	    	if(!bot){
-	    	printf("\nPe%co Requiem\n\n",an);
+	    	printf("\nPeão Requiem\n\n");
 			Sound::GetInstance()->requi(); 
-			printf("Pra qual pe%ca o seu pe%co vai mega-evoluir?\n\n",ced,an);
+			printf("Pra qual peça o seu peão vai mega-evoluir?\n\n");
 	    	printf("1)Torre\n2)Cavalo\n3)Bispo\n4)Rainha\n");
 	    	if(!xadrezNormal)
 	    	cout<<"5)Reinaldo";
@@ -457,7 +460,7 @@ if(tabuleiro[ix][iy]=='p'){
 					tabuleiro[ix][iy]='R';
 					break;
 				default:
-				 	printf("\nAo ser abandonado pelo seu rei, o pe%co decide mudar de lado\n",an);
+				 	printf("\nAo ser abandonado pelo seu rei, o peão decide mudar de lado\n");
 				 	tabuleiro[ix][iy]='s';
 			}
 			system ("pause");
@@ -479,7 +482,7 @@ if(tabuleiro[ix][iy]=='p'){
 					tabuleiro[ix][iy]='R';
 					break;
 				default:
-				 	printf("\nAo ser abandonado pelo bot, o pe%co decide ficar do seu lado\n",an);
+				 	printf("\nAo ser abandonado pelo bot, o peão decide ficar do seu lado\n");
 				 	tabuleiro[ix][iy]='s';
 				 	Sleep(2000);
 			}
@@ -791,7 +794,7 @@ if(boina){
 			joestar = tabuleiro[uix][uiy];
 			tabuleiro[uix][uiy] = tabuleiro[afx][afy];
 			tabuleiro[afx][afy] = joestar;
-			printf("\nO bot %c do rock",eh);
+			printf("\nO bot é do rock");
 			rock=0;
 			Sleep(1000);
 		} else {
