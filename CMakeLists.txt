@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
     src/Xadrex_2.cpp
     src/Sound.cpp
+    src/Chessboard.cpp
+    src/Random.cpp
 )
 
 add_executable(${PROJECT_NAME})

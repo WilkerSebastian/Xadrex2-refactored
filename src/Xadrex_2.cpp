@@ -4,6 +4,7 @@
 #include <time.h>
 #include <locale>
 #include "Sound.h"
+#include "Chessboard.h"
 
 using namespace std;
 
@@ -16,32 +17,25 @@ char ax,ay,sx,sy,joestar;
 int vez=2, real, feique,rbot;
 bool xadrezNormal=1,rock, bot=0;
 
-void resetar();
-bool selecionado(int x, int y);
-bool movimento(int ix, int iy, int mx, int my);
-
-char tabuleiro[8][8]= {  {'L','E','X','K','Q','X','E','L'},
-	                     {'s','s','s','s','s','s','s','s'},
-	  					 {'-','-','-','-','-','-','-','-'},
-						 {'-','-','-','-','-','-','-','-'},
-						 {'-','-','-','-','-','-','-','-'},
-						 {'-','-','-','-','-','-','-','-'},
-						 {'p','p','p','p','p','p','p','p'},
-						 {'T','C','B','R','D','B','C','T'}};
+void resetar(Chessboard *board);
+bool selecionado(Chessboard *board, int x, int y);
+bool movimento(Chessboard *board, int ix, int iy, int mx, int my);
 
 int main() {
 
 	std::locale::global(std::locale("pt_BR.UTF-8"));
 
+	Chessboard chessboard;
+
 	system("MODE con:cols=34 lines=30");
 	FILE *positivo;
 	positivo = fopen("historico.txt","a");
-	void menu();
-	void biomecanico();
+	void menu(Chessboard *board);
+	void biomecanico(Chessboard *board);
 	
 	comeco:
 	system("cls || clear");	
-	menu();
+	menu(&chessboard);
 	
 	if(bot == 1){
 	for(i=0;i<100;i++)
@@ -63,12 +57,7 @@ int main() {
 	printf("%c-",captB[i]);			
    cout<<"\n\n   0 1 2 3 4 5 6 7\n\n";
 //impress�o do tabuleiro
-	for(i=0;i<8;i++){
-		cout<<i<<"  ";
-	for(j=0;j<8;j++)
-	printf("%c ",tabuleiro[i][j]);
-	printf("\n");					
-	}
+	chessboard.render();
 	printf("\n");
 	//Pe�as capturadas pelos brancos
 	for(i=0; i<16; i++)
@@ -76,7 +65,7 @@ int main() {
 		
 	//Caso tenha o bot:	
 	if(vez % 2 != 0 && bot == 1){
-		biomecanico();
+		biomecanico(&chessboard);
 	}
 	else{
 	//Escolher a��o
@@ -101,7 +90,7 @@ int main() {
 			
 			fclose(positivo);
 			system("pause");
-			resetar();
+			resetar(&chessboard);
 			goto comeco;
 		} else{
 			goto inicio;
@@ -116,7 +105,7 @@ int main() {
 		Sound::GetInstance()->empate();
 		fprintf(positivo,"0 %s x %s 0\n",nome1,nome2);
 		fclose(positivo);
-		resetar();
+		resetar(&chessboard);
 		system("pause");
 		goto comeco;
 	} else{
@@ -129,37 +118,35 @@ int main() {
 	// Inserir e verificar pe�a selecionada
 	cout<<"\nMovimento:\n\nDe:";
 	scanf("%i,%i",& ax,& ay);
-	if(selecionado((int)ax,(int)ay)){
+	if(selecionado(&chessboard, (int)ax,(int)ay)){
 		printf("Não há uma peça sua nessa posição\n\n");
 		system("pause");
 		system("cls || clear");
 		goto inicio;
 	}
 	//Inserir e verificar movimento
-	printf("\n%c irá para: ",tabuleiro[ax][ay]);
+	printf("\n%c irá para: ", chessboard.getHouse(ax, ay));
 	scanf("%i,%i",& sx,& sy);
-	if(movimento(ax, ay, sx, sy)){
+	if(movimento(&chessboard, ax, ay, sx, sy)){
 		if(rock){
-			joestar = tabuleiro[ax][ay];
-			tabuleiro[ax][ay] = tabuleiro[sx][sy];
-			tabuleiro[sx][sy] = joestar;
+			chessboard.swap(ax, ay, sx, sy);
 			printf("\nOs do rock eu sei quem são");
 			rock=0;
 			fflush(stdin);
 			getchar();
 		} else {
-			if(tabuleiro[sx][sy] != '-'){
+			if(!chessboard.houseIsEmpty(sx, sy)){
 				if(vez%2 != 0){
-					captP[pz] = tabuleiro[sx][sy];
+					captP[pz] = chessboard.getHouse(sx, sy);
 					pz++;
 				}else{
-					captB[cv] = tabuleiro[sx][sy];
+					captB[cv] = chessboard.getHouse(sx, sy);
 					cv++;
 				}
 			Sound::GetInstance()->assassinato(vez);
 			}
-		tabuleiro[sx][sy]=tabuleiro[ax][ay];
-		tabuleiro[ax][ay]='-';
+		chessboard.copyHouseTo(ax, ay, sx, sy);
+		chessboard.clearHouse(ax, ay);
 		 
 		}
 	} else {
@@ -173,9 +160,9 @@ int main() {
 	//Verificar reis
 	for(i=0;i<8;i++)
 	for(j=0;j<8;j++){
-		if(tabuleiro[i][j]=='R')
+		if(chessboard.houseIs('R', i, j))
 		reipreto++;
-		if(tabuleiro[i][j]=='K')
+		if(chessboard.houseIs('K', i, j))
 		reibranco++;
 	}
 	++vez;
@@ -187,7 +174,7 @@ cout<<"   0 1 2 3 4 5 6 7\n\n";
 for(i=0;i<8;i++){
 		cout<<i<<"  ";
 	for(j=0;j<8;j++)
-	printf("%c ",tabuleiro[i][j]);
+	printf("%c ", chessboard.getHouse(i, j));
 	printf("\n");					
 	}
 	Sound::GetInstance()->the_final_countdown();
@@ -197,21 +184,21 @@ for(i=0;i<8;i++){
 	cout<<nome1<< " ganhou\n\n";
 	fprintf(positivo,"1 %s x %s 0\n",nome1,nome2);
 	fclose(positivo);
-	resetar();
+	resetar(&chessboard);
 	system ("pause");
 	
 	}else{
 	cout<<nome2<< " ganhou\n\n";
 	fprintf(positivo,"0 %s x %s 1\n",nome1,nome2);
 	fclose(positivo);
-	resetar();
+	resetar(&chessboard);
 	system ("pause");
 }
 system("cls");
 goto comeco;
 return 0;	
 }
-void menu(){
+void menu(Chessboard *board){
 	
 	int t,r;
 	static string titulo="           Xadrez em C+";
@@ -274,7 +261,7 @@ void menu(){
 	}
 	system("clear || cls");
 } else if(t==5){
-	resetar();
+	resetar(board);
    
 } else if (t == 6){
 	//Salvar jogo
@@ -286,7 +273,8 @@ void menu(){
 	
 	for(i=0; i<8; i++)
 	for(j=0; j<8; j++)
-		fprintf(tab, "%c", tabuleiro[i][j]);
+		fprintf(tab, "%c", board->getHouse(i, j));	
+		
 	fclose(tab);
 	
 	users = fopen("partida.txt","w");
@@ -303,6 +291,7 @@ void menu(){
 	FILE *car;
 	FILE *ryu;
 	FILE *cavalo;
+	char dist;
 	cavalo = fopen("comidas.txt", "r");
 	ryu = fopen("partida.txt", "r");
 	car = fopen("tabuleiro.txt", "r");
@@ -311,8 +300,10 @@ void menu(){
 		system("pause");
 	} else {
 	for(i=0;i<8;i++)
-	for(j=0;j<8;j++)
-	fscanf(car, "%c", &tabuleiro[i][j]);
+	for(j=0;j<8;j++) {
+		fscanf(car, "%c", &dist);
+		board->setHouse(dist, i, j);
+	}
 	fclose(car);
 	
 	fscanf(ryu, "%s %s %i", &nome1, &nome2, &vez);
@@ -351,13 +342,27 @@ else if (t == 0){
 	system ("clear || cls");
 }while(t!=1);
 }
-bool selecionado(int x, int y){
+bool selecionado(Chessboard *board, int x, int y){
 	
 if(xadrezNormal){
-	if (tabuleiro[x][y]!='-'){
-		if(vez % 2 == 0 && (tabuleiro[x][y]=='s' || tabuleiro[x][y]=='L' || tabuleiro[x][y]=='E' || tabuleiro[x][y]=='X' || tabuleiro[x][y]=='K' || tabuleiro[x][y]=='Q')){
+	if (board){
+		if(vez % 2 == 0 && (
+			board->houseIs('s', x, y) || 
+			board->houseIs('L', x, y) || 
+			board->houseIs('E', x, y) || 
+			board->houseIs('X', x, y) || 
+			board->houseIs('K', x, y) || 
+			board->houseIs('Q', x, y)
+		)){
 		return 0;
-	}else if(vez % 2 != 0 && (tabuleiro[x][y]!='s' && tabuleiro[x][y]!='L' && tabuleiro[x][y]!='E' && tabuleiro[x][y]!='X' && tabuleiro[x][y]!='K' && tabuleiro[x][y]!='Q')){
+	}else if(vez % 2 != 0 && (
+		!board->houseIs('s', x, y) &&
+		!board->houseIs('L', x, y) &&
+		!board->houseIs('E', x, y) &&
+		!board->houseIs('X', x, y) &&
+		!board->houseIs('K', x, y) &&
+		!board->houseIs('Q', x, y)
+	)){
 		return 0;
 	}else{
 		return 1;
@@ -369,15 +374,15 @@ if(xadrezNormal){
 	return 0;
 }
 }
-bool movimento(int ix, int iy, int mx, int my){
+bool movimento(Chessboard *board, int ix, int iy, int mx, int my){
 	int obst=0;
 	i=1;
 	j=1;
 	
-		if(tabuleiro[ix][iy]=='K' && tabuleiro[mx][my]=='L'){
+		if(board->houseIs('K', ix, iy) && board->houseIs('L', mx, my)){
 			rock=1;
 			return 1;
-		}else if(tabuleiro[ix][iy]=='R' && tabuleiro[mx][my]=='T'){
+		}else if(board->houseIs('R', ix, iy) && board->houseIs('T', mx, my)){
 			rock=1;
 			return 1;
 		}
@@ -385,17 +390,35 @@ bool movimento(int ix, int iy, int mx, int my){
 	if(ix==mx && iy==my)
 	return 0;
 	if(vez%2!=0){
-	if( tabuleiro[mx][my]=='p' || tabuleiro[mx][my]=='T' || tabuleiro[mx][my]=='C' || tabuleiro[mx][my]=='B' || tabuleiro[mx][my]=='R' || tabuleiro[mx][my]=='D')
+	if(
+		board->houseIs('p', mx, my) || 
+		board->houseIs('T', mx, my) || 
+		board->houseIs('C', mx, my) || 
+		board->houseIs('B', mx, my) || 
+		board->houseIs('R', mx, my) || 
+		board->houseIs('D', mx, my)
+	)
     	return 0;
     } else{
-    	if(tabuleiro[mx][my]=='s' || tabuleiro[mx][my]=='L' || tabuleiro[mx][my]=='E' || tabuleiro[mx][my]=='X' || tabuleiro[mx][my]=='K' || tabuleiro[mx][my]=='Q')
+    	if(
+			board->houseIs('s', mx, my) || 
+			board->houseIs('L', mx, my) || 
+			board->houseIs('E', mx, my) || 
+			board->houseIs('X', mx, my) || 
+			board->houseIs('K', mx, my) || 
+			board->houseIs('Q', mx, my)
+		)
     	return 0;
 	}
     }
 // Movimento do pe�o s
 	int requiem;
-	if(tabuleiro[ix][iy]=='s'){
-		if (((my==iy && mx==ix+1) && tabuleiro[mx][my]=='-') || (mx==ix+1 && (my==iy-1 || my==iy+1 ) && tabuleiro[mx][my]!='-' ) || (my==iy && ix==1 && mx==ix+2 && tabuleiro[ix+1][iy]=='-' && tabuleiro[mx][my]=='-')) {
+	if(board->houseIs('s', ix, iy)){
+		if (((my==iy && mx==ix+1) && 
+			board->houseIsEmpty(mx, my)) || (mx==ix+1 && (my==iy-1 || my==iy+1 ) && 
+			!board->houseIsEmpty(mx, my) ) || (my==iy && ix==1 && mx==ix+2 && 
+			board->houseIsEmpty(ix + 1, iy) && 
+			board->houseIsEmpty(mx, my))) {
 	    if (mx==7){
 	    	printf("\nPeão Requiem\n\n");
 			Sound::GetInstance()->requi(); 
@@ -406,23 +429,23 @@ bool movimento(int ix, int iy, int mx, int my){
 	    	cin>>requiem;
 	    	switch(requiem){
 	    		case 1:
-	    			tabuleiro[ix][iy]='L';
+	    			board->setHouse('L', ix, iy);
 	    			break;
 	    		case 2:
-	    			tabuleiro[ix][iy]='E';
+					board->setHouse('E', ix, iy);
 	    			break;
 				case 3:
-	    			tabuleiro[ix][iy]='X';
+					board->setHouse('X', ix, iy);
 	    			break;
 	    		case 4:
-	    			tabuleiro[ix][iy]='Q';	
+					board->setHouse('Q', ix, iy);
 	    			break;		
 	    		case 5:
-					tabuleiro[ix][iy]='K';
+					board->setHouse('K', ix, iy);
 					break;
 				default:
 					printf("\nAo ser abandonado pelo seu King, o peão decide mudar de lado\n");
-				 	tabuleiro[ix][iy]='p';	
+					board->setHouse('p', ix, iy);
 			}
 			system("pause");
 		}
@@ -432,8 +455,11 @@ bool movimento(int ix, int iy, int mx, int my){
 	}
 	}
 // Movimento do pe�o p
-if(tabuleiro[ix][iy]=='p'){
-	if (((my==iy && mx==ix-1) && tabuleiro[mx][my]=='-') || (mx==ix-1 && (my==iy-1 || my==iy+1 ) && tabuleiro[mx][my]!='-' ) || (my==iy && ix==6 && mx==ix-2 && tabuleiro[ix-1][iy]=='-' && tabuleiro[mx][my]=='-')) {
+if(board->houseIs('p', ix, iy)){
+	if (((my==iy && mx==ix-1) && board->houseIsEmpty(mx, my)) || (mx==ix-1 && (my==iy-1 || my==iy+1 ) && 
+		!board->houseIsEmpty(mx, my) ) || (my==iy && ix==6 && mx==ix-2 && 
+		board->houseIsEmpty(ix - 1, iy) && 
+		board->houseIsEmpty(mx, my))) {
 	    if (mx==0){
 	    	if(!bot){
 	    	printf("\nPeão Requiem\n\n");
@@ -445,45 +471,45 @@ if(tabuleiro[ix][iy]=='p'){
 	    	cin>>requiem;
 	    	switch(requiem){
 	    		case 1:
-	    			tabuleiro[ix][iy]='T';
+	    			board->setHouse('T', ix, iy);
 	    			break;
 	    		case 2:
-	    			tabuleiro[ix][iy]='C';
+	    			board->setHouse('C', ix, iy);
 	    			break;
 	    		case 3:
-	    			tabuleiro[ix][iy]='B';
+	    			board->setHouse('B', ix, iy);
 	    			break;
 	    		case 4:
-	    			tabuleiro[ix][iy]='D';
+	    			board->setHouse('D', ix, iy);
 	    			break;	
 	    		case 5:
-					tabuleiro[ix][iy]='R';
+					board->setHouse('R', ix, iy);
 					break;
 				default:
 				 	printf("\nAo ser abandonado pelo seu rei, o peão decide mudar de lado\n");
-				 	tabuleiro[ix][iy]='s';
+				 	board->setHouse('s', ix, iy);
 			}
 			system ("pause");
 			} else {
 				switch(rbot){
 	    		case 1:
-	    			tabuleiro[ix][iy]='T';
+	    			board->setHouse('T', ix, iy);
 	    			break;
 	    		case 2:
-	    			tabuleiro[ix][iy]='C';
+	    			board->setHouse('C', ix, iy);
 	    			break;
 	    		case 3:
-	    			tabuleiro[ix][iy]='B';
+	    			board->setHouse('B', ix, iy);
 	    			break;
 	    		case 4:
-	    			tabuleiro[ix][iy]='D';
+	    			board->setHouse('D', ix, iy);
 	    			break;	
 	    		case 5:
-					tabuleiro[ix][iy]='R';
+					board->setHouse('R', ix, iy);
 					break;
 				default:
 				 	printf("\nAo ser abandonado pelo bot, o peão decide ficar do seu lado\n");
-				 	tabuleiro[ix][iy]='s';
+				 	board->setHouse('s', ix, iy);
 				 	Sleep(2000);
 			}
 		}
@@ -494,12 +520,12 @@ if(tabuleiro[ix][iy]=='p'){
 	}
 }
 // Movimento Torres
-  if(tabuleiro[ix][iy]=='T' || tabuleiro[ix][iy]=='L'){
+  if(board->houseIs('T', ix, iy) || board->houseIs('L', ix, iy)){
     	
     		if(mx==ix && my>iy){
     			i=iy+1;
     			while(i<my){
-    				if(tabuleiro[ix][i]!='-')
+    				if(!board->houseIsEmpty(ix, i))
     				obst++;
     				i++;
 				}
@@ -511,7 +537,7 @@ if(tabuleiro[ix][iy]=='p'){
 			} else if(mx==ix && my<iy){
 				i=iy-1;
     			while(i>my){
-    				if(tabuleiro[ix][i]!='-')
+    				if(!board->houseIsEmpty(ix, i))
     				obst++;
     				i--;	
 			}
@@ -523,7 +549,7 @@ if(tabuleiro[ix][iy]=='p'){
 			} else if(my==iy && mx<ix){
 				i=ix-1;
     			while(i>mx){
-    				if(tabuleiro[i][iy]!='-')
+    				if(!board->houseIsEmpty(i, iy))
     				obst++;
     				i--;	
 			}
@@ -535,7 +561,7 @@ if(tabuleiro[ix][iy]=='p'){
 			} else if(my==iy && mx>ix){
 				i=ix+1;
     			while(i<mx){
-    				if(tabuleiro[i][iy]!='-')
+    				if(!board->houseIsEmpty(i, iy))
     				obst++;
     				i++;
 				}
@@ -549,7 +575,7 @@ if(tabuleiro[ix][iy]=='p'){
 			}
 }
 //Movimento dos Reis	
-	if(tabuleiro[ix][iy]=='K' || tabuleiro[ix][iy]=='R'){
+	if(board->houseIs('K', ix, iy) || board->houseIs('R', ix, iy)){
 		
 		if( (mx==ix && (my==iy-1 || my==iy+1) ) || (my==iy && (mx==ix+1 || mx==ix-1)) || (mx==ix+1 && my==iy+1) || (mx==ix+1 && my==iy-1) || (mx==ix-1 && my==iy+1) || (mx==ix-1 && my==iy-1)){
 		return 1;
@@ -558,7 +584,7 @@ if(tabuleiro[ix][iy]=='p'){
 		}
 	}
 //Movimento dos Cavalos
-	 if(tabuleiro[ix][iy]=='C' || tabuleiro[ix][iy]=='E'){
+	 if(board->houseIs('C', ix, iy) || board->houseIs('E', ix, iy)){
 		if(((mx==ix+2 || mx==ix-2) && (my==iy+1 || my==iy-1)) || ((mx==ix+1 || mx==ix-1) && (my==iy+2 || my==iy-2)) ){
 			return 1;
 		} else {
@@ -566,11 +592,11 @@ if(tabuleiro[ix][iy]=='p'){
 		}
 	}
 //Movimento dos Bispos
-	 if(tabuleiro[ix][iy]=='B' || tabuleiro[ix][iy]=='X'){
+	 if(board->houseIs('B', ix, iy) || board->houseIs('X', ix, iy)){
 		if(mx>ix && my>iy){
 			if(mx - ix == my - iy) {
 				for(i=1;i<=mx-ix-1;i++)
-					if(tabuleiro[ix+i][iy+i] != '-' && ix+i!=mx && iy+i!=my){
+					if(!board->houseIsEmpty(ix + i, iy + i) && ix+i!=mx && iy+i!=my){
 					return 0;
 					break;
 					}
@@ -581,7 +607,7 @@ if(tabuleiro[ix][iy]=='p'){
 		} else if(mx<ix && my<iy){
 			if(mx - ix == my - iy) {
 				for(i=1;i<=ix-mx;i++)
-					if(tabuleiro[ix-i][iy-i] != '-' && ix-i!=mx && iy-i!=my){
+					if(!board->houseIsEmpty(ix - i, iy - i) && ix-i!=mx && iy-i!=my){
 					return 0;
 					break;
 					}
@@ -593,7 +619,7 @@ if(tabuleiro[ix][iy]=='p'){
 		} else if(mx>ix && my<iy){
 			if(mx - ix == iy - my) {
 				for(i=1;i<=mx-ix;i++)
-					if(tabuleiro[ix+i][iy-i] != '-' && ix+i!=mx && iy-i!=my){
+					if(!board->houseIsEmpty(ix + i, iy - i) && ix+i!=mx && iy-i!=my){
 					return 0;
 					break;
 					}
@@ -605,7 +631,7 @@ if(tabuleiro[ix][iy]=='p'){
 		} else if(mx<ix && my>iy){
 			if(ix - mx == my - iy) {
 				for(i=1;i<=my-iy;i++)
-					if(tabuleiro[ix-i][iy+i] != '-' && ix-i!=mx && iy+i!=my){
+					if(!board->houseIsEmpty(ix - i, iy + i) && ix-i!=mx && iy+i!=my){
 					return 0;
 					break;
 					}
@@ -618,12 +644,12 @@ if(tabuleiro[ix][iy]=='p'){
 		}
 	}
 // Movimento das Rainhas
-	if(tabuleiro[ix][iy] == 'D' || tabuleiro[ix][iy] == 'Q'){
+	if(board->houseIs('D', ix, iy) || board->houseIs('Q', ix, iy)){
 		// Movimento em X
 		if(mx>ix && my>iy){
 			if(mx - ix == my - iy) {
 				for(i=1;i<=mx-ix-1;i++)
-					if(tabuleiro[ix+i][iy+i] != '-' && ix+i!=mx && iy+i!=my){
+					if(!board->houseIsEmpty(ix + i, iy + i) && ix+i!=mx && iy+i!=my){
 					return 0;
 					break;
 					}
@@ -634,7 +660,7 @@ if(tabuleiro[ix][iy]=='p'){
 		} else if(mx<ix && my<iy){
 			if(mx - ix == my - iy) {
 				for(i=1;i<=ix-mx;i++)
-					if(tabuleiro[ix-i][iy-i] != '-' && ix-i!=mx && iy-i!=my){
+					if(!board->houseIsEmpty(ix - i, iy - i) && ix-i!=mx && iy-i!=my){
 					return 0;
 					break;
 					}
@@ -646,7 +672,7 @@ if(tabuleiro[ix][iy]=='p'){
 		} else if(mx>ix && my<iy){
 			if(mx - ix == iy - my) {
 				for(i=1;i<=mx-ix;i++)
-					if(tabuleiro[ix+i][iy-i] != '-' && ix+i!=mx && iy-i!=my){
+					if(!board->houseIsEmpty(ix + i, iy - i) && ix+i!=mx && iy-i!=my){
 					return 0;
 					break;
 					}
@@ -658,7 +684,7 @@ if(tabuleiro[ix][iy]=='p'){
 		} else if(mx<ix && my>iy){
 			if(ix - mx == my - iy) {
 				for(i=1;i<=my-iy;i++)
-					if(tabuleiro[ix-i][iy+i] != '-' && ix-i!=mx && iy+i!=my){
+					if(!board->houseIsEmpty(ix - i, iy + i) && ix-i!=mx && iy+i!=my){
 					return 0;
 					break;
 					}
@@ -671,7 +697,7 @@ if(tabuleiro[ix][iy]=='p'){
 		 else if(mx==ix && my>iy){
     			i=iy+1;
     			while(i<my){
-    				if(tabuleiro[ix][i]!='-')
+    				if(!board->houseIsEmpty(ix, i))
     				obst++;
     				i++;
 				}
@@ -684,7 +710,7 @@ if(tabuleiro[ix][iy]=='p'){
 			} else if(mx==ix && my<iy){
 				i=iy-1;
     			while(i>my){
-    				if(tabuleiro[ix][i]!='-')
+    				if(!board->houseIsEmpty(ix, i))
     				obst++;
     				i--;	
 			}
@@ -696,7 +722,7 @@ if(tabuleiro[ix][iy]=='p'){
 			} else if(my==iy && mx<ix){
 				i=ix-1;
     			while(i>mx){
-    				if(tabuleiro[i][iy]!='-')
+    				if(!board->houseIsEmpty(i, iy))
     				obst++;
     				i--;	
 			}
@@ -708,7 +734,7 @@ if(tabuleiro[ix][iy]=='p'){
 			} else if(my==iy && mx>ix){
 				i=ix+1;
     			while(i<mx){
-    				if(tabuleiro[i][iy]!='-')
+    				if(!board->houseIsEmpty(i, iy))
     				obst++;
     				i++;
 				}
@@ -723,39 +749,23 @@ if(tabuleiro[ix][iy]=='p'){
 		
 	}	
 }
-void resetar(){
-	tabuleiro[0][0]='L';
-	tabuleiro[0][1]='E';
-	tabuleiro[0][2]='X';
-	tabuleiro[0][3]='K';
-	tabuleiro[0][4]='Q';
-	tabuleiro[0][5]='X';
-	tabuleiro[0][6]='E';
-	tabuleiro[0][7]='L';
-	for(i=0;i<8;i++)
-	tabuleiro[1][i]='s';
-	for(i=2;i<6;i++)
-	for(j=0;j<8;j++)
-	tabuleiro[i][j]='-';
-	for(i=0;i<8;i++)
-	tabuleiro[6][i]='p';
-	tabuleiro[7][0]='T';
-	tabuleiro[7][1]='C';
-	tabuleiro[7][2]='B';
-	tabuleiro[7][3]='R';
-	tabuleiro[7][4]='D';
-	tabuleiro[7][5]='B';
-	tabuleiro[7][6]='C';
-	tabuleiro[7][7]='T';
-   vez=2;
+
+void resetar(Chessboard *board) {
+
+	board->reset();
+
+	vez = 2;
    
-   for(i=0;i<16;i++){
-   	captB[i] = ' ';
-   	captP[i] = ' ';
-   }
+	for(uint8_t i = 0; i < BOARD_LEN * 2; i++) {
+
+		captB[i] = ' ';
+		captP[i] = ' ';
+   
+	}
 	
 }
-void biomecanico(){
+
+void biomecanico(Chessboard *board){
 
  int uix, uiy, afx, afy;
  bool boina;
@@ -769,13 +779,13 @@ while(1){
 	uix = rand() % 8;
 	uiy = rand() % 8;
 	
-	if(!selecionado(uix,uiy)){
+	if(!selecionado(board, uix,uiy)){
 		do{
 			afx = rand() % 8;
 			afy = rand() % 8;
 			
 		//	cout<<endl<<idk<<"---"<<uix<<","<<uiy<<" "<<afx<<","<<afy;
-			boina = movimento(uix,uiy,afx,afy);
+			boina = movimento(board, uix,uiy,afx,afy);
 			
 			if(boina){
 				break;
@@ -791,25 +801,23 @@ while(1){
 //system("pause");
 if(boina){
 		if(rock){
-			joestar = tabuleiro[uix][uiy];
-			tabuleiro[uix][uiy] = tabuleiro[afx][afy];
-			tabuleiro[afx][afy] = joestar;
+			board->swap(uix, uiy, afx, afy);
 			printf("\nO bot é do rock");
 			rock=0;
 			Sleep(1000);
 		} else {
-			if(tabuleiro[afx][afy] != '-'){
+			if(board->houseIsEmpty(afx, afy)){
 				if(vez%2 != 0){
-					captP[pz] = tabuleiro[afx][afy];
+					captP[pz] = board->getHouse(afx, afy);
 					pz++;
 				}else{
-					captB[cv] = tabuleiro[afx][afy];
+					captB[cv] = board->getHouse(afx, afy);
 					cv++;
 				}
 				Sound::GetInstance()->assassinato(vez); 
 			}
-		tabuleiro[afx][afy]=tabuleiro[uix][uiy];
-		tabuleiro[uix][uiy]='-';
+			board->copyHouseTo(uix, uiy, afx, afy);
+			board->clearHouse(uix, uiy);
 		 
 		}
 }
