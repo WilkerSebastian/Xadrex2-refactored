@@ -5,6 +5,7 @@
 #include <locale>
 #include "Sound.h"
 #include "Chessboard.h"
+#include "Settings.h"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ char captB[16] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' 
 char captP[16] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
 char ax,ay,sx,sy,joestar;
 int vez=2, real, feique,rbot;
-bool xadrezNormal=1,rock, bot=0;
+bool rock, bot=0;
 
 void resetar(Chessboard *board);
 bool selecionado(Chessboard *board, int x, int y);
@@ -231,7 +232,7 @@ void menu(Chessboard *board){
 
 } else if(t==3){
 	system("clear || cls");
-	if(xadrezNormal){
+	if(Settings::isNormalChess){
 	printf("1. Jogue quando for o seu turno\n\n2. Insira as cordenadas como: linha, virgula, coluna\n\n");
 	printf("3. Insira primeiro as cordenadas de onde está a peça que vc quer mover\n\n");
 	printf("4. Depois insira a cordenada da casa pra qual vc quer que a peça se desloque\n\n");
@@ -251,11 +252,11 @@ void menu(Chessboard *board){
 	cout<<"1)Xadrez normal\n\n2)Xadrez 2\n\n";
 	scanf("%i",&r);
 	if(r==2){
-		xadrezNormal=0;
+		Settings::isNormalChess = false;
 		titulo="             Xadrex 2";
 		system("title Xadrez muito mais bolado");
 	} else {
-		xadrezNormal=1;
+		Settings::isNormalChess = true;
 		titulo="          Xadrez Normal?"; 
 		system("title Xadrez normal");
 	}
@@ -344,7 +345,7 @@ else if (t == 0){
 }
 bool selecionado(Chessboard *board, int x, int y){
 	
-if(xadrezNormal){
+if(Settings::isNormalChess){
 	if (board){
 		if(vez % 2 == 0 && (
 			board->houseIs('s', x, y) || 
@@ -386,7 +387,7 @@ bool movimento(Chessboard *board, int ix, int iy, int mx, int my){
 			rock=1;
 			return 1;
 		}
-	if(xadrezNormal){
+	if(Settings::isNormalChess){
 	if(ix==mx && iy==my)
 	return 0;
 	if(vez%2!=0){
@@ -424,7 +425,7 @@ bool movimento(Chessboard *board, int ix, int iy, int mx, int my){
 			Sound::GetInstance()->requi(); 
 			printf("Pra qual peça o seu peão vai mega-evoluir?\n\n");
 	    	printf("1)Liteira\n2)Elefante\n3)Xamã\n4)Queen\n");
-	    	if(!xadrezNormal)
+	    	if(!Settings::isNormalChess)
 	    	cout<<"5)King Crimson\n";
 	    	cin>>requiem;
 	    	switch(requiem){
@@ -466,7 +467,7 @@ if(board->houseIs('p', ix, iy)){
 			Sound::GetInstance()->requi(); 
 			printf("Pra qual peça o seu peão vai mega-evoluir?\n\n");
 	    	printf("1)Torre\n2)Cavalo\n3)Bispo\n4)Rainha\n");
-	    	if(!xadrezNormal)
+	    	if(!Settings::isNormalChess)
 	    	cout<<"5)Reinaldo";
 	    	cin>>requiem;
 	    	switch(requiem){

@@ -12,6 +12,8 @@ class Chessboard {
 
         Chessboard();
 
+        bool selected(int x, int y);
+
         bool houseIsEmpty(const uint8_t x, const uint8_t y);
 
         bool houseIs(const char compared, const uint8_t x, const uint8_t y);
