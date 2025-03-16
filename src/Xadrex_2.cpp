@@ -118,7 +118,7 @@ int main() {
 	// Inserir e verificar pe�a selecionada
 	cout<<"\nMovimento:\n\nDe:";
 	scanf("%i,%i",& ax,& ay);
-	if(!chessboard.selected(ax, ay, vez % 2 == 0)){
+	if(!chessboard.selected(ax, ay)){
 		printf("Não há uma peça sua nessa posição\n\n");
 		system("pause");
 		system("cls || clear");
@@ -748,7 +748,7 @@ while(1){
 	uix = rand() % 8;
 	uiy = rand() % 8;
 	
-	if(board->selected(uix, uiy, false)){
+	if(board->selected(uix, uiy)){
 		do{
 			afx = rand() % 8;
 			afy = rand() % 8;

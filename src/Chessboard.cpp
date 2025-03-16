@@ -1,7 +1,9 @@
 #include "Chessboard.h"
 
 #include <iostream>
+#include <stdexcept>
 #include "Settings.h"
+#include "Piece.h"
 
 Chessboard::Chessboard() {
 
@@ -9,12 +11,14 @@ Chessboard::Chessboard() {
 
 }
 
-bool Chessboard::selected(const uint8_t x, const uint8_t y, const bool white) {
+bool Chessboard::selected(const uint8_t x, const uint8_t y) {
 
     if(Settings::isNormalChess)
         return true;
 
     bool existWH = this->existWhitePieceInHouse(x, y);
+
+    bool white = this->isWhite(x, y);
 
     if ((white && existWH) || (!white && !existWH))
         return true;
@@ -45,6 +49,20 @@ bool Chessboard::houseIsEmpty(const uint8_t x, const uint8_t y) {
 bool Chessboard::houseIs(const char compared, const uint8_t x, const uint8_t y) {
 
     return this->getHouse(x, y) == compared;
+
+}
+
+bool Chessboard::isWhite(const uint8_t x, const uint8_t y) {
+
+    if (this->houseIsEmpty(x, y))
+        throw std::invalid_argument("Invalid null position of piece in x and y");
+
+    for (uint8_t i = 1; i < Piece::pieces.size(); i++) {
+
+        if (this->houseIs(static_cast<char>(Piece::pieces[i]), x, y)) 
+            return i <= 6;
+
+    }
 
 }
 

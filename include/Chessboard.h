@@ -12,13 +12,15 @@ class Chessboard {
 
         Chessboard();
 
-        bool selected(const uint8_t x, const uint8_t y, const bool white);
+        bool selected(const uint8_t x, const uint8_t y);
 
         bool existWhitePieceInHouse(const uint8_t x, const uint8_t y);
 
         bool houseIsEmpty(const uint8_t x, const uint8_t y);
 
         bool houseIs(const char compared, const uint8_t x, const uint8_t y);
+
+        bool isWhite(const uint8_t x, const uint8_t y);
 
         void copyHouseTo(const uint8_t sx, const uint8_t sy, const uint8_t dx, const uint8_t dy);
 
