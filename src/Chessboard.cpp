@@ -1,10 +1,38 @@
 #include "Chessboard.h"
 
 #include <iostream>
+#include "Settings.h"
 
 Chessboard::Chessboard() {
 
     this->reset();
+
+}
+
+bool Chessboard::selected(const uint8_t x, const uint8_t y, const bool white) {
+
+    if(Settings::isNormalChess)
+        return true;
+
+    bool existWH = this->existWhitePieceInHouse(x, y);
+
+    if ((white && existWH) || (!white && !existWH))
+        return true;
+
+    return false;
+
+}
+
+bool Chessboard::existWhitePieceInHouse(const uint8_t x, const uint8_t y) {
+
+    return (
+        this->houseIs('s', x, y) || 
+        this->houseIs('L', x, y) || 
+        this->houseIs('E', x, y) || 
+        this->houseIs('X', x, y) || 
+        this->houseIs('K', x, y) || 
+        this->houseIs('Q', x, y)
+    );
 
 }
 

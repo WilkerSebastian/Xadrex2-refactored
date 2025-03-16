@@ -19,7 +19,6 @@ int vez=2, real, feique,rbot;
 bool rock, bot=0;
 
 void resetar(Chessboard *board);
-bool selecionado(Chessboard *board, int x, int y);
 bool movimento(Chessboard *board, int ix, int iy, int mx, int my);
 
 int main() {
@@ -119,7 +118,7 @@ int main() {
 	// Inserir e verificar pe�a selecionada
 	cout<<"\nMovimento:\n\nDe:";
 	scanf("%i,%i",& ax,& ay);
-	if(selecionado(&chessboard, (int)ax,(int)ay)){
+	if(!chessboard.selected(ax, ay, vez % 2 == 0)){
 		printf("Não há uma peça sua nessa posição\n\n");
 		system("pause");
 		system("cls || clear");
@@ -343,38 +342,7 @@ else if (t == 0){
 	system ("clear || cls");
 }while(t!=1);
 }
-bool selecionado(Chessboard *board, int x, int y){
-	
-if(Settings::isNormalChess){
-	if (board){
-		if(vez % 2 == 0 && (
-			board->houseIs('s', x, y) || 
-			board->houseIs('L', x, y) || 
-			board->houseIs('E', x, y) || 
-			board->houseIs('X', x, y) || 
-			board->houseIs('K', x, y) || 
-			board->houseIs('Q', x, y)
-		)){
-		return 0;
-	}else if(vez % 2 != 0 && (
-		!board->houseIs('s', x, y) &&
-		!board->houseIs('L', x, y) &&
-		!board->houseIs('E', x, y) &&
-		!board->houseIs('X', x, y) &&
-		!board->houseIs('K', x, y) &&
-		!board->houseIs('Q', x, y)
-	)){
-		return 0;
-	}else{
-		return 1;
-	}
-} else{
-	return 1;
-}
-} else{
-	return 0;
-}
-}
+
 bool movimento(Chessboard *board, int ix, int iy, int mx, int my){
 	int obst=0;
 	i=1;
@@ -780,7 +748,7 @@ while(1){
 	uix = rand() % 8;
 	uiy = rand() % 8;
 	
-	if(!selecionado(board, uix,uiy)){
+	if(board->selected(uix, uiy, false)){
 		do{
 			afx = rand() % 8;
 			afy = rand() % 8;
