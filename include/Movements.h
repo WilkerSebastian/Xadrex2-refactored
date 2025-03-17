@@ -1,19 +1,36 @@
 #pragma once
 
+#include "Chessboard.h"
+#include "MoveValid.h"
+
 class Movements {
 
     private:
 
-        Movements() {}
+        Chessboard *board;
 
-        static Movements* instance_;
+        const uint8_t sx; 
+        const uint8_t sy; 
+        const uint8_t dx; 
+        const uint8_t dy; 
+
+        bool isRock();
+
+        bool isRequiem(const bool black);
+
+        bool blackPawn();
+
+        bool whitePawn();
     
+        MoveValid independentPieceMovementVerification();
+
+        MoveValid pieceMovementVerification();
+
     public:
 
-        Movements(Movements &other) = delete;
+        Movements(Chessboard *board, const uint8_t sx, const uint8_t sy, const uint8_t dx, const uint8_t dy) 
+        : board(board), sx(sx), sy(sy), dx(dx), dy(dy) {};
 
-        void operator = (const Movements &) = delete;
+        MoveValid move();
 
-        static Movements *GetInstance();
-    
 };
