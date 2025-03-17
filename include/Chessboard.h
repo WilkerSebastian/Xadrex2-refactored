@@ -12,7 +12,7 @@ class Chessboard {
 
         Chessboard();
 
-        bool selected(const uint8_t x, const uint8_t y);
+        bool selected(const uint8_t x, const uint8_t y, const bool white);
 
         bool existWhitePieceInHouse(const uint8_t x, const uint8_t y);
 

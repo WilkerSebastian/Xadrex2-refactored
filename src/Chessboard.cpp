@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include "Settings.h"
 #include "Piece.h"
 
@@ -11,14 +12,12 @@ Chessboard::Chessboard() {
 
 }
 
-bool Chessboard::selected(const uint8_t x, const uint8_t y) {
+bool Chessboard::selected(const uint8_t x, const uint8_t y, const bool white) {
 
     if(Settings::isNormalChess)
         return true;
 
     bool existWH = this->existWhitePieceInHouse(x, y);
-
-    bool white = this->isWhite(x, y);
 
     if ((white && existWH) || (!white && !existWH))
         return true;
@@ -102,7 +101,7 @@ void Chessboard::render() {
 
     for(uint8_t i = 0; i < BOARD_LEN; i++){
 		
-        std::cout << i << "  ";
+        std::cout << std::to_string(i) << "  ";
 
         for(uint8_t j = 0; j < 8; j++)
             std::cout << this->board[i][j] << ' ';
