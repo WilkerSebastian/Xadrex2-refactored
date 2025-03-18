@@ -21,6 +21,8 @@ class Movements {
         bool blackPawn();
 
         bool whitePawn();
+
+        bool tower();
     
         MoveValid independentPieceMovementVerification();
 

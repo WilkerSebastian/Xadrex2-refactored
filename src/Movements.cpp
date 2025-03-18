@@ -36,7 +36,8 @@ MoveValid Movements::pieceMovementVerification() {
 
         return this->isRequiem(true) ? MoveValid::REQUIEM : MoveValid::VALID;
 
-    }
+    }  else if (_piece == static_cast<char>(Pieces::WHITE_TOWER) || _piece == static_cast<char>(Pieces::BLACK_TOWER))
+        return this->tower() ? MoveValid::VALID : MoveValid::NOT_VALID;
 
 
 }
@@ -99,6 +100,58 @@ bool Movements::whitePawn() {
         (sideCapture && !distIsEmpty) || 
         (doubleFront && pathToDistIsEmpty && !distIsEmpty)
     );
+
+}
+
+bool Movements::tower() {
+
+    if (this->sx == this->dx && this->sy <= this->dy) {
+
+        for (uint8_t i = sy + 1; i < dy; i++) {
+
+            if (!this->board->houseIsEmpty(sx, i))
+                return false;
+        
+        }
+
+        return true;
+
+    } else if (this->sx == this->sx && this->sy >= this->dy) {
+
+        for (uint8_t i = sy - 1; i > dy; i--) {
+
+            if (!this->board->houseIsEmpty(sx, i))
+                return false;
+        
+        }
+        
+        return true;
+
+    } else if (this->sx >= this->dx && this->sy == this->dy) {
+
+        for (uint8_t i = this->sx - 1; i > dx; i--) {
+
+            if (!this->board->houseIsEmpty(i, sy))           
+                return false;
+            
+        }
+
+        return true;
+
+    } else if(this->sx <= this->dx && this->sy == this->dy) {
+
+        for (uint8_t i = this->sx + 1; i < this->dx; i++) {
+
+            if (!this->board->houseIsEmpty(i, sy))
+                return false;
+
+        }
+
+        return true;
+
+    } 
+    
+    return false;
 
 }
 
