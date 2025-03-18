@@ -47,6 +47,9 @@ MoveValid Movements::pieceMovementVerification() {
     else if (_piece == static_cast<char>(Pieces::WHITE_KNIGHT) || _piece == static_cast<char>(Pieces::BLACK_KNIGHT))
         return this->horse() ? MoveValid::VALID : MoveValid::NOT_VALID; 
 
+    else if (_piece == static_cast<char>(Pieces::WHITE_BISHOP) || _piece == static_cast<char>(Pieces::BLACK_BISHOP))
+        return this->bishop() ? MoveValid::VALID : MoveValid::NOT_VALID; 
+
 }
 
 MoveValid Movements::independentPieceMovementVerification() {
@@ -188,6 +191,77 @@ bool Movements::horse() {
         standingLX && standingLY ||
         fallenLX && fallenLY 
     );
+
+}
+
+bool Movements::bishop() {
+
+    if (this->sx - this->dx != this->sy - this->dy)
+        return false;
+
+    if (this->sx <= this->dx && this->sy <= this->dy) {
+
+        for (uint8_t i = 1; i <= this->dx - this->sx - 1; i++) {
+
+            if (
+                !this->board->houseIsEmpty(sx + i, sy + i) && 
+                this->sx + i != this->dx && 
+                this->sy + i != this->dy
+            ) 
+                return false;
+
+        }
+
+        return true;
+
+    } else if (this->sx >= this->dx && this->sy >= this->dy) {
+
+        for (uint8_t i = 1; i <= this->sx - this->dx; i++) {
+
+            if (
+                !this->board->houseIsEmpty(sx - i, sy - i) && 
+                this->sx - i != this->dx && 
+                this->sy - i != this->dy
+            ) 
+                return false;
+
+        }
+        
+        return true;
+        
+    } else if (this->sx <= this->dx && this->sy >= this->dy) {
+
+        for (uint8_t i = 1; i <= this->dx - this->sx; i++) {
+
+            if (
+                !this->board->houseIsEmpty(sx + i, sy - i) && 
+                this->sx + i != this->dx && 
+                this->sy - i != this->dy
+            ) 
+                return false;
+
+        }
+
+        return true;
+            
+    } else if (this->sx >= this->dx && this->sy <= this->dy) {
+
+        for (uint8_t i = 1; i <= this->dy - this->sy; i++) {
+
+            if (
+                !this->board->houseIsEmpty(sx - i, sy + i) && 
+                this->sx - i != this->dx && 
+                this->sy + i != this->dy
+            ) 
+                return false;
+
+        }
+
+        return true;
+
+    }
+    
+    return false;
 
 }
 
