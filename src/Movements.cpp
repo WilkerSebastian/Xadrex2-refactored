@@ -265,6 +265,18 @@ bool Movements::bishop() {
 
 }
 
+bool Movements::queen() {
+
+    if (this->bishop())
+        return true;
+
+    else if (this->tower())
+        return true;
+
+    return false;
+
+}
+
 bool Movements::isRock() {
 
     return(

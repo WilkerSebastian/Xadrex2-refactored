@@ -29,6 +29,8 @@ class Movements {
         bool horse();
 
         bool bishop();
+
+        bool queen();
     
         MoveValid independentPieceMovementVerification();
 
