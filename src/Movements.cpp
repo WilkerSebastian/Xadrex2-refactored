@@ -46,6 +46,20 @@ MoveValid Movements::pieceMovementVerification() {
 
 }
 
+bool Movements::horse() {
+
+    bool standingLX = this->sx + 2 == this->dx || this->sx - 2 == this->dx;
+    bool standingLY = this->sy + 1 == this->dy || this->sy - 1 == this->dy;
+    bool fallenLX = this->sx + 1 == this->dx || this->sx - 1 == this->dy;
+    bool fallenLY = this->sy + 2 == this->dy || this->sy - 2 == this->dy;
+
+    return(
+        standingLX && standingLY ||
+        fallenLX && fallenLY 
+    );
+
+}
+
 MoveValid Movements::independentPieceMovementVerification() {
 
     if (this->isRock())

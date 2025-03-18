@@ -25,6 +25,8 @@ class Movements {
         bool tower();
         
         bool king();
+
+        bool horse();
     
         MoveValid independentPieceMovementVerification();
 
