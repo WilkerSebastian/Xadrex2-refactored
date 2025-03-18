@@ -1,5 +1,7 @@
 #include "Movements.h"
 
+#include <cmath>
+
 #include "Settings.h"
 #include "Piece.h"
 
@@ -39,6 +41,8 @@ MoveValid Movements::pieceMovementVerification() {
     }  else if (_piece == static_cast<char>(Pieces::WHITE_TOWER) || _piece == static_cast<char>(Pieces::BLACK_TOWER))
         return this->tower() ? MoveValid::VALID : MoveValid::NOT_VALID;
 
+    else if (_piece == static_cast<char>(Pieces::WHITE_TOWER) || _piece == static_cast<char>(Pieces::BLACK_TOWER))
+        return this->king() ? MoveValid::VALID : MoveValid::NOT_VALID;
 
 }
 
@@ -152,6 +156,21 @@ bool Movements::tower() {
     } 
     
     return false;
+
+}
+
+bool Movements::king() {
+
+    uint8_t diffX = abs(this -> sx - this->dx);
+    uint8_t diffY = abs(this -> sy - this->dy);
+
+    bool sideMove = diffX == 0 || diffX == 1;
+    bool verticalMove = diffY == 0 || diffY == 1;
+
+    return(
+        sideMove &&
+        verticalMove
+    );
 
 }
 
