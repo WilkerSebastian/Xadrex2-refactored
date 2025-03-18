@@ -43,6 +43,9 @@ MoveValid Movements::pieceMovementVerification() {
 
     else if (_piece == static_cast<char>(Pieces::WHITE_TOWER) || _piece == static_cast<char>(Pieces::BLACK_TOWER))
         return this->king() ? MoveValid::VALID : MoveValid::NOT_VALID;
+    
+    else if (_piece == static_cast<char>(Pieces::WHITE_KNIGHT) || _piece == static_cast<char>(Pieces::BLACK_KNIGHT))
+        return this->horse() ? MoveValid::VALID : MoveValid::NOT_VALID; 
 
 }
 
